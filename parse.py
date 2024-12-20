@@ -1,3 +1,4 @@
+#cat parse.py
 #llama3.1:8b
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
