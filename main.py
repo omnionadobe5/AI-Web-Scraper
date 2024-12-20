@@ -1,10 +1,10 @@
+#cat main.py
 import streamlit as st
 import pandas as pd
 from scrape import (
     scrape_website,
-    extract_body_content,
     clean_body_content,
-    split_dom_content,
+    split_dom_content
 )
 from parse import parse_with_ollama
 import re
@@ -58,17 +58,32 @@ if st.button("Scrape Website"):
     if url:
         try:
             with st.spinner('Scraping website...'):
-                dom_content = scrape_website(url)
-                body_content = extract_body_content(dom_content)
-                cleaned_content = clean_body_content(body_content)
+                st.info("Starting scraping process... This may take a few moments.")
                 
-                if cleaned_content:
-                    st.session_state.dom_content = cleaned_content
-                    st.success("Website scraped successfully!")
+                # Scrape the website
+                dom_content = scrape_website(url)
+                
+                if dom_content:
+                    # Clean and extract product information
+                    cleaned_content = clean_body_content(dom_content)
+                    
+                    if cleaned_content:
+                        st.session_state.dom_content = cleaned_content
+                        st.success("Website scraped successfully!")
+                        st.info(f"Found product information. Ready for parsing.")
+                    else:
+                        st.warning("No product information could be extracted. This might be due to:")
+                        st.write("1. The website's structure is not recognized")
+                        st.write("2. The content is loaded dynamically and requires different handling")
+                        st.write("3. The website might be blocking automated access")
                 else:
-                    st.warning("No product data found on this page")
+                    st.error("Failed to retrieve content from the website")
         except Exception as e:
             st.error(f"Error scraping website: {str(e)}")
+            st.write("Please check if:")
+            st.write("1. The URL is correct and accessible")
+            st.write("2. The website allows automated access")
+            st.write("3. Your internet connection is stable")
 
 # Step 2: Parse Content
 if "dom_content" in st.session_state:
