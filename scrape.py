@@ -20,17 +20,9 @@ def scrape_website(website):
     options.add_argument('--disable-dev-shm-usage')
     
     with Remote(sbr_connection, options=options) as driver:
+        print("Navigating to website...")
         driver.get(website)
-        print("Waiting for captcha to solve...")
-        solve_res = driver.execute(
-            "executeCdpCommand",
-            {
-                "cmd": "Captcha.waitForSolve",
-                "params": {"detectTimeout": 10000},
-            },
-        )
-        print("Captcha solve status:", solve_res["value"]["status"])
-        print("Navigated! Scraping page content...")
+        print("Scraping page content...")
         html = driver.page_source
         return html
 
