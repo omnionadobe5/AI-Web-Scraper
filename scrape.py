@@ -18,10 +18,13 @@ def scrape_website(website):
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36')
     
     with Remote(sbr_connection, options=options) as driver:
         print("Navigating to website...")
         driver.get(website)
+        # Add a small delay to allow dynamic content to load
+        driver.implicitly_wait(5)
         print("Scraping page content...")
         html = driver.page_source
         return html
@@ -42,8 +45,17 @@ def clean_body_content(body_content):
     for script_or_style in soup(["script", "style"]):
         script_or_style.decompose()
     
+    # Specifically look for price elements in Amazon's structure
+    price_elements = soup.find_all(class_=lambda x: x and ('price' in x.lower() or 'a-price' in x.lower()))
+    
     # Get text and clean it
-    cleaned_content = soup.get_text(separator="\n")
+    cleaned_content = ""
+    for element in price_elements:
+        cleaned_content += element.get_text() + "\n"
+    
+    if not cleaned_content:
+        cleaned_content = soup.get_text(separator="\n")
+    
     cleaned_content = "\n".join(
         line.strip() for line in cleaned_content.splitlines() if line.strip()
     )
