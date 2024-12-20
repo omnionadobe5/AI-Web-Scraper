@@ -138,7 +138,7 @@ def clean_body_content(body_content):
         
     logger.info(f"Content length: {len(body_content)}")
     
-    soup = BeautifulSoup(body_content, "html.parser", parser="html5lib")
+    soup = BeautifulSoup(body_content, "html.parser")
     
     for element in soup(['script', 'style', 'nav', 'footer', 'iframe']):
         element.decompose()
